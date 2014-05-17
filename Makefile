@@ -4,37 +4,16 @@ all: build test doc
 PREFIX ?= /usr/local
 NAME=cohttp
 
-LWT ?= $(shell if ocamlfind query lwt >/dev/null 2>&1; then echo --enable-lwt; fi)
-LWT_UNIX ?= $(shell if ocamlfind query lwt.ssl >/dev/null 2>&1; then echo --enable-lwt-unix; fi)
-ASYNC ?= $(shell if ocamlfind query async >/dev/null 2>&1; then echo --enable-async; fi)
+LWT ?= $(shell if ocamlfind query lwt >/dev/null 2>&1; then echo true; else echo false; fi)
+LWT_UNIX ?= $(shell if ocamlfind query lwt.unix >/dev/null 2>&1; then echo echo true; else echo false; fi)
+ASYNC ?= $(shell if ocamlfind query async >/dev/null 2>&1; then echo true; else echo false; fi)
 #NETTESTS ?= --enable-tests --enable-nettests
 
-setup.bin: setup.ml
-	ocamlopt.opt -o $@ $< 2>/dev/null || ocamlopt -o $@ $< 2>/dev/null || ocamlc -o $@ $<
-	rm -f setup.cmx setup.cmi setup.o setup.cmo
+build:
+	ocaml pkg/build.ml native=true native-dynlink=true lwt=$(LWT) async=$(ASYNC) lwt-unix=$(ASYNC)
 
-setup.data: setup.bin
-	./setup.bin -configure $(LWT) $(ASYNC) $(LWT_UNIX) $(TESTS) $(NETTESTS) --prefix $(PREFIX)
-
-build: setup.data setup.bin
-	./setup.bin -build -classic-display
-
-doc: setup.data setup.bin
-	./setup.bin -doc
-
-install: setup.bin
-	./setup.bin -install
-
-test: setup.bin build
-	./setup.bin -test
-
-fulltest: setup.bin build
-	./setup.bin -test
-
-reinstall: setup.bin
-	ocamlfind remove $(NAME) || true
-	./setup.bin -reinstall
+explain:
+	ocaml pkg/build.ml explain
 
 clean:
 	ocamlbuild -clean
-	rm -f setup.data setup.log setup.bin

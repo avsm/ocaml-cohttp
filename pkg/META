@@ -1,5 +1,3 @@
-# OASIS_START
-# DO NOT EDIT (digest: 3a3c98b9a46563b21053347ce5de6829)
 version = "0.12.0"
 description = "HTTP library for Lwt, Async and Mirage"
 requires = "re.emacs stringext uri uri.services fieldslib sexplib"
@@ -40,5 +38,3 @@ package "async" (
  archive(native, plugin) = "cohttp_async.cmxs"
  exists_if = "cohttp_async.cma"
 )
-# OASIS_STOP
-
