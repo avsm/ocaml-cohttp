@@ -1,10 +1,4 @@
 true: annot, bin_annot, principal, strict_sequence, debug
 <cohttp>: include
 <cohttp/*> and not <cohttp/cohttp.*>: for-pack(Cohttp)
-<cohttp/*> or <lwt/*> or <async/*>: package(uri)
-<cohttp/*>: package(fieldslib.syntax), package(sexplib.syntax)
-<cohttp/*> or <lwt/*> or <async/*>: syntax(camlp4o)
-<lwt/*>: package(lwt.syntax), package(fieldslib.syntax), package(sexplib.syntax)
-<lwt/cohttp_lwt_unix*.*>: package(conduit.lwt)
-<async/*>: package(fieldslib.syntax), package(sexplib.syntax)
-<async/*>: package(async), package(conduit.async), thread
+true: use_syntax, camlp4o.opt

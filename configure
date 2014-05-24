@@ -1,0 +1,24 @@
+#!/bin/sh -ex
+
+# source the package variables
+if [ -e "_vars" ]; then
+  . ./_vars
+fi
+
+OF="`which ocamlfind` query -r"
+
+rm -rf _config && mkdir -p _config
+
+${OF} -i-format ${DEPS} > _config/oflags
+${OF} -a-format -predicates native ${DEPS} > _config/archives.native
+${OF} -a-format -predicates byte ${DEPS} > _config/archives.byte
+${OF} -predicates syntax,preprocessor,native,plugin -format '-I %d %A' ${DEPS} ${SYNTAX_DEPS} > _config/ppflags.opt
+${OF} -predicates syntax,preprocessor -format '-I %d %A' ${DEPS} ${SYNTAX_DEPS} > _config/ppflags.byte
+${OF} -predicates byte -format '-I %d %A' ${SYNTAX_DEPS} >> _config/ppflags.byte
+${OF} -predicates native,plugin -format '-I %d %A' ${SYNTAX_DEPS} >> _config/ppflags.opt
+
+# TODO check ocamlopt is installed
+  touch _config/flag.opt
+if [ `ocamlfind query dynlink -predicates native -format "%d/%a"` ]; then
+  touch _config/flag.natdynlink
+fi

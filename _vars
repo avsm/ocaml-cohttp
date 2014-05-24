@@ -1,0 +1,2 @@
+SYNTAX_DEPS="sexplib.syntax fieldslib.syntax lwt.syntax"
+DEPS="uri fieldslib sexplib"
