@@ -5,4 +5,5 @@ services:
 install:
   - docker pull avsm/docker-opam-build
 script:
+  - pwd
   - docker run -v ~:/repo avsm/docker-opam-build:debian-stable-ocaml-4.02.1-system ls -la /repo
