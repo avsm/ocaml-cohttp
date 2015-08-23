@@ -9,6 +9,7 @@ script:
   - echo "opam pin add -n $PACKAGE /repo" >> build.sh
   - echo "opam depext -i $PACKAGE" >> build.sh
   - echo "opam install $DEPOPTS" >> build.sh
+  - echo "$POST_INSTALL_HOOK" >> build.sh
   - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-$OCAML_VERSION sh -x /repo/build.sh
 env:
   - PACKAGE="cohttp" OCAML_VERSION=4.01.0 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github cowabloga" 
