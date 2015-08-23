@@ -5,7 +5,6 @@ services:
 script:
   - echo "export OPAMYES=1" >> build.sh
   - echo "export OPAMJOBS=2" >> build.sh
-  - echo "export OPAMVERBOSE=1" >> build.sh
   - echo "opam pin add -n $PACKAGE /repo" >> build.sh
   - echo "opam depext -i $PACKAGE" >> build.sh
   - echo "opam install $DEPOPTS" >> build.sh
