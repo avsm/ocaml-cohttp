@@ -5,5 +5,7 @@ services:
 install:
   - docker pull avsm/docker-opam-build:debian-stable-ocaml-4.02.1-system
 script:
-  - pwd
-  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-stable-ocaml-4.02.1-system sudo ls -la /repo
+  - echo "opam pin add -n cohttp /repo" > build.sh
+  - echo "opam depext cohttp" >> build.sh
+  - echo "opam install cohttp" >> build.sh
+  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-stable-ocaml-4.02.1-system sh /repo/build.sh
