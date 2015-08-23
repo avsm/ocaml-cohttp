@@ -6,7 +6,8 @@ install:
   - docker pull avsm/docker-opam-build:debian-testing-ocaml-4.02.1-local
 script:
   - echo "export OPAMDEBUG=1" >> build.sh
-  - echo "opam pin add -n cohttp /repo" >> build.sh
+  - echo "opam pin add -n cohttp.0.19.2 /repo" >> build.sh
   - echo "opam depext cohttp" >> build.sh
   - echo "opam install cohttp" >> build.sh
+  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-4.02.1-local aspcud -v
   - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-4.02.1-local sh -x /repo/build.sh
