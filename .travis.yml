@@ -2,11 +2,15 @@ language: c
 sudo: required
 services:
   - docker
-install:
-  - docker pull avsm/docker-opam-build:debian-testing-ocaml-4.02.1
 script:
-  - echo "opam pin add -n cohttp.0.19.2 /repo" >> build.sh
-  - echo "opam depext cohttp" >> build.sh
-  - echo "opam install cohttp" >> build.sh
-  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-4.02.1 aspcud -v
-  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-4.02.1 sh -x /repo/build.sh
+  - echo "export OPAMYES=1" >> build.sh
+  - echo "export OPAMJOBS=2" >> build.sh
+  - echo "export OPAMVERBOSE=1" >> build.sh
+  - echo "opam pin add -n $PACKAGE /repo" >> build.sh
+  - echo "opam depext -i $PACKAGE" >> build.sh
+  - echo "opam install $DEPOPTS" >> build.sh
+  - docker run -v ~/build/$TRAVIS_REPO_SLUG:/repo avsm/docker-opam-build:debian-testing-ocaml-$OCAML_VERSION sh -x /repo/build.sh
+env:
+  - PACKAGE="cohttp" OCAML_VERSION=4.01.0 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github cowabloga" 
+  - PACKAGE="cohttp" OCAML_VERSION=4.02.1 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github cowabloga opium slacko"
+  - PACKAGE="cohttp" OCAML_VERSION=4.02.1 DEPOPTS="async_ssl" POST_INSTALL_HOOK="opam install github cowabloga"
