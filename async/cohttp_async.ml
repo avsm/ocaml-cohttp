@@ -237,7 +237,8 @@ module Client = struct
     call ?interrupt ?headers ~chunked ?body `POST uri
 
   let post_form ?interrupt ?headers ~params uri =
-    let headers = Cohttp.Header.add_opt_unless_exists headers "content" "application/x-www-form-urlencoded" in
+    let headers = Cohttp.Header.add_opt_unless_exists headers
+        "content-type" "application/x-www-form-urlencoded" in
     let body = Body.of_string (Uri.encoded_of_query params) in
     post ?interrupt ~headers ~chunked:false ~body uri
 
@@ -295,8 +296,10 @@ module Server = struct
                         "connection"
                         (if keep_alive then "keep-alive" else "close") in
         { res with Response.headers } in
-      Response.write ~flush (Body.write Response.write_body res_body) res wr >>= fun () ->
-      Writer.flushed wr >>= fun () ->
+      Response.write ~flush (Body.write Response.write_body res_body) res wr
+      >>= fun () ->
+      Writer.(if keep_alive then flushed else close ?force_close:None) wr
+      >>= fun () ->
       Body.drain body
     ) >>= fun () ->
     Writer.close wr >>= fun () ->
