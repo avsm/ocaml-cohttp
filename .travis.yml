@@ -4,6 +4,7 @@ services:
   - docker
 script: ./.travis.sh
 env:
+  - DISTRO=debian-stable PACKAGE="cohttp" OCAML_VERSION=4.01.0 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github slacko" 
   - DISTRO=debian-testing PACKAGE="cohttp" OCAML_VERSION=4.01.0 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github cowabloga" 
   - DISTRO=ubuntu-15.10 PACKAGE="cohttp" OCAML_VERSION=4.02.3 DEPOPTS="async lwt js_of_ocaml" POST_INSTALL_HOOK="opam install github cowabloga opium slacko"
   - DISTRO=ubuntu-15.10 PACKAGE="cohttp" OCAML_VERSION=4.02.3 DEPOPTS="async_ssl" POST_INSTALL_HOOK="opam install github cowabloga"
