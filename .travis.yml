@@ -8,7 +8,7 @@ env:
  global:
    - PACKAGE="cohttp"
    - DEPOPTS="async_ssl ssl lwt js_of_ocaml"
-   - POST_INSTALL_HOOK="opam install github cowabloga opium slacko"
+   - POST_INSTALL_HOOK="opam depext -ui github cowabloga opium slacko"
  matrix:
    - DISTRO=debian-stable OCAML_VERSION=4.02.3
    - DISTRO=debian-testing OCAML_VERSION=4.02.3
