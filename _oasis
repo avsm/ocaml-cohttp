@@ -38,7 +38,7 @@ Library cohttp
 Library cohttp_test
   Build$:        flag(tests)
   Install:       false
-  Path:          lib
+  Path:          lib_test
   Findlibname:   test
   FindlibParent: cohttp
   Modules:       Cohttp_test
