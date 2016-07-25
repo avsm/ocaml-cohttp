@@ -42,6 +42,10 @@ let headers_with_list_values = Array.map LString.of_string [|
   "proxy-authenticate";"te";"trailer";"transfer-encoding";"upgrade";
   "vary";"via";"warning";"www-authenticate"; |]
 
+let hop_by_hop_headers = Array.map LString.of_string [|
+  "connection";"te";"transfer-encoding";"keep-alive";"proxy-authorization";
+  "proxy-authentication";"trailer";"upgrade" |]
+
 let is_header_with_list_value =
   let tbl = Hashtbl.create (Array.length headers_with_list_values) in
   headers_with_list_values |> Array.iter (fun h -> Hashtbl.add tbl h ());
@@ -249,6 +253,12 @@ let connection h =
   | Some x -> Some (`Unknown x)
   | x -> None
 
+let remove_hop_by_hop_headers h =
+  get_multi h "connection" |>
+  List.fold_left remove h |>
+  fun h -> Array.fold_left (fun acc v ->
+    remove acc (LString.to_string v)) h hop_by_hop_headers
+
 open Sexplib
 open Sexplib.Std
 open Sexplib.Conv
@@ -258,6 +268,11 @@ let sexp_of_t t =
 
 let t_of_sexp s =
   of_list (list_of_sexp (pair_of_sexp string_of_sexp string_of_sexp) s)
+
+type connection = [
+ | `Keep_alive
+ | `Close
+ | `Unknown of string ] [@@deriving sexp]
 
 let pp_hum ppf h =
   Format.fprintf ppf "%s" (h |> sexp_of_t |> Sexp.to_string_hum)

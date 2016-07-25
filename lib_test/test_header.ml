@@ -422,13 +422,32 @@ let link_ext_star () =
     };
   ]) (H.get_links headers)
 
+let header_printer = function
+ | None -> "None"
+ | Some x -> "\"" ^ x ^ "\""
+
 let trim_ws () =
   let resp = get_resp ["Age: 281   "] in
   let headers = headers_of_response "trim whitespace" resp in
-  assert_equal
-    ~printer:(function
-      | None -> "None"
-      | Some x -> "\"" ^ x ^ "\"") (H.get headers "age") (Some "281")
+  assert_equal ~printer:header_printer (H.get headers "age") (Some "281")
+
+(* TODO lift these helper functions into Alcotest *)
+let p_sexp f x = x |> f |> Sexplib.Sexp.to_string
+let p_option fn x = x |> function None -> "None" | Some x -> fn x
+
+let connection_keepalive () =
+  (* Try various permutations of connection headers and ensure that
+     keep-alive is parsed correctly *)
+  let perms = [ [ "Connection: keep-alive" ];
+                [ "Connection: keep-alive,foo" ];
+                [ "Connection: keep-alive, foo" ] ] in
+  List.iter (fun resp ->
+    get_resp resp |>
+    headers_of_response "connection keep-alive" |>
+    fun h -> assert_equal
+      ~printer:(p_option (p_sexp H.sexp_of_connection))
+      (H.connection h) (Some `Keep_alive);
+  ) perms
 
 let test_cachecontrol_concat () =
   let resp = get_resp ["Cache-Control: public";
@@ -484,4 +503,7 @@ Alcotest.run "test_header" [
     "large header", `Slow, large_header;
     "many headers", `Slow, many_headers;
   ];
+  "Connection", [
+    "keep alive", `Quick, connection_keepalive;
+  ]
 ]

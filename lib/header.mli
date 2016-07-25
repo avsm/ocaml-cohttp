@@ -106,7 +106,14 @@ val prepend_user_agent : t -> string -> t
 (** Prepend [user_agent] to the product token already declared in the
     "User-Agent" field (if any). *)
 
-val connection : t -> [`Keep_alive | `Close | `Unknown of string] option
+type connection = [
+ | `Keep_alive
+ | `Close
+ | `Unknown of string ] [@@deriving sexp]
 
+val connection : t -> connection option
+
+val remove_hop_by_hop_headers : t -> t
+  
 (** Human-readable output, used by the toplevel printer *)
 val pp_hum : Format.formatter -> t -> unit
