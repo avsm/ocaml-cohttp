@@ -99,6 +99,9 @@ val get_location : t -> Uri.t option
 val add_links : t -> Link.t list -> t
 val get_links : t -> Link.t list
 
+val add_connection : t -> string -> t
+val get_connection : t -> string list
+
 val user_agent : string
 (** The User-Agent header used by this library, including the version
     of cohttp. *)

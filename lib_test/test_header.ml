@@ -438,17 +438,60 @@ let p_option fn x = x |> function None -> "None" | Some x -> fn x
 let connection_keepalive () =
   (* Try various permutations of connection headers and ensure that
      keep-alive is parsed correctly *)
-  let perms = [ [ "Connection: keep-alive" ];
-                [ "Connection: keep-alive,foo" ];
-                [ "Connection: keep-alive, foo" ] ] in
-  List.iter (fun resp ->
+  let perms = [ [ "Connection: keep-alive" ], (Some `Keep_alive);
+                [ "Connection: keep-alive,foo" ], (Some `Keep_alive);
+                [ "Connection: keep-alive, foo" ], (Some `Keep_alive);
+                [ "Connection: close" ], (Some `Close);
+                [ "Connection: close,foo" ], (Some `Close);
+                [ "Connection: close, foo" ], (Some `Close);
+                [ "Connection: close,foo,bar" ], (Some `Close);
+                [ "Connection: close,keep-alive" ], (Some `Keep_alive);
+                ] in
+  List.iter (fun (resp, expected) ->
     get_resp resp |>
     headers_of_response "connection keep-alive" |>
     fun h -> assert_equal
       ~printer:(p_option (p_sexp H.sexp_of_connection))
-      (H.connection h) (Some `Keep_alive);
+      expected (H.connection h)
   ) perms
 
+let connection_remove_hop_by_hop () =
+  let resps = [ 
+    [ "Connection: foo,bar"; "Foo: alice"; "Bar: bob" ];
+    [ "Connection: foo,bar"; "Foo: alice" ];
+    [ "Connection: foo,bar"; "Foo: alice"; "Gamma: ray" ];
+    [ "Connection: foo,bar" ] ] in
+  (* Foo and Bar headers should never be present in the response *)
+  let no_foo_or_bar h =
+    (H.get h "foo", H.get h "bar") = (None, None) in
+  List.iter (fun resp ->
+    get_resp resp |>
+    headers_of_response "connection remove hop-by-hop" |>
+    fun h -> assert_bool "remove hop by hop" 
+      (H.remove_hop_by_hop_headers h |> no_foo_or_bar )
+  ) resps;
+  let resps = [ 
+    [ "Connection: close"; "Foo: alice"; "Bar: bob" ];
+    [ "Connection: keep-alive"; "Foo: alice" ];
+    [ "Connection: close"; "Foo: alice"; "Gamma: ray" ] ] in
+  (* Foo headers should never be stripped in the response *)
+  let has_foo h = H.get h "foo" <> None in
+  List.iter (fun resp ->
+    get_resp resp |>
+    headers_of_response "connection remove hop-by-hop" |>
+    fun h -> assert_bool "remove hop by hop" 
+      (H.remove_hop_by_hop_headers h |> has_foo)
+  ) resps;
+  (* Now inject a "foo" header and ensure they are stripped *)
+  List.iter (fun resp ->
+    get_resp resp |>
+    headers_of_response "connection remove hop-by-hop" |>
+    fun h -> H.add_connection h "foo" |>
+    fun h -> H.add_connection h "bar" |>
+    fun h -> assert_bool "remove hop by hop" 
+      (H.remove_hop_by_hop_headers h |> no_foo_or_bar)
+  ) resps
+ 
 let test_cachecontrol_concat () =
   let resp = get_resp ["Cache-Control: public";
                        "Cache-Control: max-age:86400"] in
@@ -505,5 +548,6 @@ Alcotest.run "test_header" [
   ];
   "Connection", [
     "keep alive", `Quick, connection_keepalive;
+    "remove hop by hop", `Quick, connection_remove_hop_by_hop
   ]
 ]

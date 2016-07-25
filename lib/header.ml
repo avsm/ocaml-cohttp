@@ -246,15 +246,23 @@ let prepend_user_agent headers user_agent =
     | Some ua -> replace headers k (user_agent^" "^ua)
     | None -> add headers k user_agent
 
+let get_connection headers =
+  match get headers "connection" with
+  | None -> []
+  | Some v -> Stringext.split_trim_left ~on:"," ~trim:" \t" v
+
+let add_connection headers c =
+  add headers "connection" c
+
 let connection h =
-  match get h "connection" with
-  | Some v when v = "keep-alive" -> Some `Keep_alive
-  | Some v when v = "close" -> Some `Close
-  | Some x -> Some (`Unknown x)
-  | x -> None
+  get_connection h |> function
+  | [] -> None
+  | vs when List.mem "keep-alive" vs -> Some `Keep_alive
+  | vs when List.mem "close" vs -> Some `Close
+  | vs -> Some (`Unknown (String.concat "," vs))
 
 let remove_hop_by_hop_headers h =
-  get_multi h "connection" |>
+  get_connection h |>
   List.fold_left remove h |>
   fun h -> Array.fold_left (fun acc v ->
     remove acc (LString.to_string v)) h hop_by_hop_headers
