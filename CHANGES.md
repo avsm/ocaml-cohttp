@@ -1,5 +1,7 @@
 ## v0.99.0 (2017-07-12)
 
+Details at: https://discuss.ocaml.org/t/ann-major-releases-of-cohttp-conduit-dns-tcpip
+
 Port build to jbuilder, and break up OPAM packages into multiple
 independent packages instead of being optional dependencies against
 the main `cohttp` package. This makes it significantly easier to

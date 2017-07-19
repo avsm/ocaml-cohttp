@@ -6,17 +6,13 @@ Cohttp is an OCaml library for creating HTTP daemons. It has a portable
 HTTP parser, and implementations using various asynchronous programming
 libraries:
 
-* `Cohttp_lwt_unix` uses the [Lwt](http://ocsigen.org/lwt) library, and
-  specifically the UNIX bindings.
-* `Cohttp_async` uses the [Async](https://realworldocaml.org/v1/en/html/concurrent-programming-with-async.html)
-  library.
-* `Cohttp_lwt` exposes an OS-independent Lwt interface, which is used
-  by the [Mirage](http://www.openmirage.org) interface
-  to generate standalone microkernels (see the [mirage-http](https://github.com/mirage/mirage-http)
-  repository).
-* `Cohttp_lwt_xhr` compiles to a JavaScript module that maps the Cohttp
-   calls to XMLHTTPRequests.  This is used to compile OCaml libraries like
-   the GitHub bindings to JavaScript and still run efficiently.
+- `cohttp`: the main `Cohttp` module
+- `cohttp-lwt`: the portable Lwt implementation using the [Lwt](http://ocsigen.org/lwt) library and is OS-independent.
+- `cohttp-lwt-unix`: the Lwt/Unix implementation
+- `cohttp-lwt-jsoo`: the js-of-ocaml JavaScript implementation that maps Cohttp calls to XMLHTTPRequests.
+- `cohttp-async`: the Jane Street [Async](https://github.com/janestreet/async) implementation
+- `mirage-http`: the [MirageOS](https://mirage.io) compatible implementation
+- `cohttp-top`: a toplevel printer for the Cohttp types.
 
 You can implement other targets using the parser very easily. Look at the `IO`
 signature in `lib/s.mli` and implement that in the desired backend.
@@ -32,7 +28,7 @@ Latest stable version should be obtained from opam. Make sure to install the
 specific backends you want as well. E.g.
 
 ```
-$ opam install cohttp lwt js_of_ocaml
+$ opam install cohttp-lwt-unix
 ```
 
 You can also obtain the development release:
